@@ -75,6 +75,28 @@ export class UsersService {
     });
   }
 
+  async searchBar(query:{ search?:string}){
+    const { search } = query;
+    const select = {
+      id: true,
+      name: true,
+      email: true,
+    };
+    if (!search) {
+      return await this.prisma.user.findMany({ select });
+    }
+  
+    return await this.prisma.user.findMany({
+      where: {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          
+        ],
+      },
+      select,
+    });
+  }
+
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }

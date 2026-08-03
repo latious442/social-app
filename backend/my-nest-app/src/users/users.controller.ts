@@ -1,11 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Res } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import type { Request } from 'express';
 import * as express from 'express';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth/jwt-auth.guard';
-
+import { FileInterceptor } from '@nestjs/platform-express/multer/interceptors/file.interceptor';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { Multer } from 'multer';
 type AuthenticatedRequest = Request & {
   user: {
     id: number;
@@ -16,7 +33,10 @@ type AuthenticatedRequest = Request & {
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -40,6 +60,11 @@ export class UsersController {
     });
 
     return token;
+  }
+
+  @Get('search')
+  searchBar(@Query() query: { search?: string }) {
+    return this.usersService.searchBar(query);
   }
 
   @Delete('delete/:id')
@@ -71,5 +96,15 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadImage(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Image file is required');
+    }
+
+    return this.cloudinaryService.uploadFile(file);
   }
 }

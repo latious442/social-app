@@ -8,15 +8,24 @@ export class PostsService {
   async create(createPostDto: CreatePostDto) {
     try{
      return await this.prisma.post.create({
-        data: {
-          title: createPostDto.title,
-          content: createPostDto.content,
-          userId: createPostDto.userId,
-        },
-      });
+       data: {
+         content: createPostDto.content,
+         userId: createPostDto.userId,
+       }
+     });
     
     } catch (error) {
       throw new Error('Failed to create post');
+    }
+  }
+
+  async findUserPosts(userId: number) {
+    try {
+      return await this.prisma.post.findMany({
+        where: { userId },
+      });
+    } catch (error) {
+      throw new Error('Failed to retrieve user posts');
     }
   }
 

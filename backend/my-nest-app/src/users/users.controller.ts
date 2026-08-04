@@ -14,6 +14,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import {UploadProfileDto} from './dto/upload-profile.dto';
 import type { Request } from 'express';
 import * as express from 'express';
 import { UsersService } from './users.service';
@@ -98,13 +99,29 @@ export class UsersController {
     return this.usersService.remove(+id);
   }
 
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadImage(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('Image file is required');
-    }
-
-    return this.cloudinaryService.uploadFile(file);
+  @Post('upload-profile')
+@UseInterceptors(FileInterceptor('file'))
+async uploadProfile(
+  @UploadedFile() file: Express.Multer.File,
+  @Body('id') id: string,
+) {
+  if (!file) {
+    throw new BadRequestException('Image file is required');
   }
+
+  // Upload image to Cloudinary
+  const uploadedImage = await this.cloudinaryService.uploadFile(file);
+
+  // Save URL in database
+  const user = await this.usersService.addImg(
+    Number(id),
+    uploadedImage.secure_url ?? uploadedImage.url,
+  );
+
+  return {
+    message: 'Profile image updated successfully',
+    profile: uploadedImage.secure_url,
+    user,
+  };
+}
 }

@@ -8,7 +8,9 @@ export class CloudinaryService {
     private cloudinary: typeof Cloudinary,
   ) {}
 
-  async uploadFile(file: Express.Multer.File) {
+  async uploadFile(
+    file: Express.Multer.File,
+  ): Promise<{ url: string; secure_url?: string; [key: string]: unknown }> {
     return new Promise((resolve, reject) => {
       this.cloudinary.uploader
         .upload_stream(
@@ -16,7 +18,7 @@ export class CloudinaryService {
             folder: 'uploads',
           },
           (error, result) => {
-            if (error) return reject(error);
+            if (error || !result) return reject(error ?? new Error('Upload failed'));
             resolve(result);
           },
         )

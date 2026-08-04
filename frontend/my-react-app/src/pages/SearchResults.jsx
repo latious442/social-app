@@ -19,10 +19,10 @@ export default function SearchResults() {
           {results.map((user) => (
             <li
               key={user.id}
-              className="bg-gray-100 p-3 rounded flex justify-between"
+              className="bg-gray-100 p-3 rounded flex justify-between hover:bg-gray-200 transition duration-200 cursor-pointer"
             >
               <span className="font-medium">{user.name}</span>
-              <span className="text-gray-600">{user.email}</span>
+              <img className="w-12 h-12 rounded-full object-cover" src={user.profile} alt="Profile" />
             </li>
           ))}
         </ul>

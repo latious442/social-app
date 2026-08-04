@@ -29,8 +29,13 @@ export class PostsService {
     }
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  async findAll() {
+    try{
+      return await this.prisma.post.findMany();
+    }
+    catch(error){
+      throw new Error('Failed to retrieve posts');
+    }
   }
 
   findOne(id: number) {
@@ -41,7 +46,13 @@ export class PostsService {
     return `This action updates a #${id} post`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(id: number) {
+    try {
+      return await this.prisma.post.delete({
+        where: { id },
+      });
+    } catch (error) {
+      throw new Error('Failed to delete post');
+    }
   }
 }

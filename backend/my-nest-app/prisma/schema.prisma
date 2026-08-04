@@ -16,10 +16,14 @@ model User {
   name     String
   email    String @unique
   password String
+  profile  String @default("")
+  posts    Post[]
 }
 
 model Post{
-  id  Int  @id @default(autoincrement())
-  content String
-  userId  Int
+  id        Int      @id @default(autoincrement())
+  content   String
+  userId    Int
+  createdAt DateTime @default(now())
+  author    User     @relation(fields: [userId], references: [id])
 }

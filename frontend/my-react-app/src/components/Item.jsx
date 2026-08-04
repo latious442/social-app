@@ -1,11 +1,15 @@
-import React from 'react'
+import React from "react";
 
-export default function Item() {
+export default function Item({ post }) {
+  
+
   return (
-    <div className="bg-gray-300 p-4 w-50 h-75 rounded">
-        <img src="/ss.png" alt="Laser" className="w-full h-3/4 object-cover rounded" />
-        <button className="mt-2 w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Click Me</button>
-        
-        </div>
-  )
+    <div className="bg-white rounded-lg shadow-md w-full max-w-xl">
+      
+
+      <p className="px-4 pb-4 text-gray-800">
+        {post?.content}
+      </p>
+    </div>
+  );
 }

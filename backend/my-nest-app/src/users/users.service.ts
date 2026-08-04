@@ -50,6 +50,7 @@ export class UsersService {
         id: user.id,
         name: user.name,
         email: user.email,
+        profile: user.profile,
       },
     };
   }
@@ -71,6 +72,7 @@ export class UsersService {
         id: true,
         name: true,
         email: true,
+        profile: true,
       },
     });
   }
@@ -81,6 +83,7 @@ export class UsersService {
       id: true,
       name: true,
       email: true,
+      profile: true,
     };
     if (!search) {
       return await this.prisma.user.findMany({ select });
@@ -94,6 +97,13 @@ export class UsersService {
         ],
       },
       select,
+    });
+  }
+
+  async addImg(id: number, profile: string) {
+    return await this.prisma.user.update({
+      where: { id },
+      data: { profile },
     });
   }
 

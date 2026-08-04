@@ -40,7 +40,7 @@ export default function Profile() {
   if (user) {
     fetchUserPosts();
   }
- });
+ }, [user?.id]);
   async function handleFileUpload(event) {
     event.preventDefault();
     const fileInput = event.target.querySelector('input[type="file"]');
@@ -53,6 +53,7 @@ export default function Profile() {
 
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('id', user.id);
 
     try {
       const token = localStorage.getItem('token');
@@ -61,7 +62,7 @@ export default function Profile() {
         return;
       }
 
-      const response = await fetch('http://localhost:3003/users/upload', {
+      const response = await fetch('http://localhost:3003/users/upload-profile', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -73,8 +74,9 @@ export default function Profile() {
       const data = await response.json();
 
       if (response.ok) {
-        setUser(data);
-        localStorage.setItem('user', JSON.stringify(data));
+        const updatedUser = { ...user, profile: data.profile };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
         alert('File uploaded successfully!');
       } else {
         alert(data.message || 'File upload failed.');
@@ -84,6 +86,36 @@ export default function Profile() {
       alert('Something went wrong during file upload.');
     }
   }
+
+  async function handleDeletePost(postId) {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('No token found. Please login first.');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3003/posts/del/${postId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPosts(posts.filter(post => post.id !== postId));
+        alert('Post deleted successfully!');
+      } else {
+        alert(data.message || 'Failed to delete post.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Something went wrong while deleting the post.');
+    }
+  };
 
   async function checkProfile() {
     const token = localStorage.getItem('token');
@@ -179,10 +211,16 @@ export default function Profile() {
     Cancel
   </button>
 </form>
+{user?.profile ? (
+  <img className="w-32 h-32 rounded-full object-cover" src={user.profile} alt="Profile" />
+) : null}
 
 {posts.map(post => (
   <div key={post.id} className="bg-gray-200 p-4 rounded shadow mb-2">
     {post.content}
+    <button className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 ml-2" onClick={() => handleDeletePost(post.id)}>
+      Delete
+    </button>
   </div>
 ))}
 

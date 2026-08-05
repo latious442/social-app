@@ -65,6 +65,22 @@ export class UsersService {
     return await this.prisma.user.findMany();
   }
 
+  async findFriends(id: number) {
+    return await this.prisma.user.findMany({
+      where: {
+        NOT: {
+          id,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        profile: true,
+      },
+    });
+  }
+
   async findOne(id: number) {
     return await this.prisma.user.findUnique({
       where: { id },

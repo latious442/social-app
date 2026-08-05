@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import {useEffect} from 'react'
+import { Link } from 'react-router-dom'
 export default function Profile() {
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('user');
@@ -184,25 +185,42 @@ export default function Profile() {
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={checkProfile}
-        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-      >
-        Check JWT
-      </button>
+    
+<div>
+  <div className="justify-center items-center p-4">
 
-      <p>username: {user?.name || 'Not logged in'}</p>
+      {user?.profile ? (
+        <img className="w-32 h-32 rounded-full object-cover" src={user.profile} alt="Profile" />
+      ) : null}
+
+
+      <p> {user?.name || 'Not logged in'}</p>
+     
+      
+      </div>
+      <div id="pf-change" style={{ display: 'none' }} className="p-4">
+
       <form onSubmit={handleFileUpload}>
       <input type="file" className="border border-black p-2 rounded bg-green-500"></input>
      <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Upload</button>
       </form>
 
-      <div className="bg-gray-100 p-4 rounded mt-4">
-        <h2 className="text-lg font-bold mb-2">add post </h2>
+      </div>
+      <div className="bg-gray-100 p-4 rounded mt-4 flex gap-3">
+        <button className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600" onClick={() => {
+          const pfChangeDiv = document.getElementById('pf-change');
+          pfChangeDiv.style.display = pfChangeDiv.style.display === 'none' ? 'block' : 'none';
+        }}>
+          Change Profile 
+        </button>
+       
         <button className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600" onClick={() => document.getElementById('add-post-form').style.display = 'block'}>
           add post
         </button>
+         <Link to="/chat" className="bg-purple-500 text-white py-2 px-4 rounded-full w-15 h-15 hover:bg-purple-600">
+          chat
+        </Link>
+</div>
 <form id="add-post-form" className="mt-4" onSubmit={handleAddPost} style={{ display: 'none' }}>
   add post here
   <textarea className="w-full p-2 border border-gray-300 rounded" rows="4" placeholder="Write your post..."></textarea>
@@ -211,13 +229,14 @@ export default function Profile() {
     Cancel
   </button>
 </form>
-{user?.profile ? (
-  <img className="w-32 h-32 rounded-full object-cover" src={user.profile} alt="Profile" />
-) : null}
+
 
 {posts.map(post => (
   <div key={post.id} className="bg-gray-200 p-4 rounded shadow mb-2">
-    {post.content}
+    
+    <p>
+      {post.author.name}: {post.content}
+      </p>
     <button className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 ml-2" onClick={() => handleDeletePost(post.id)}>
       Delete
     </button>

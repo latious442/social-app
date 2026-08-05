@@ -24,6 +24,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express/multer/interceptors/file.interceptor';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { Multer } from 'multer';
+import { PostsService } from 'src/posts/posts.service';
 type AuthenticatedRequest = Request & {
   user: {
     id: number;
@@ -37,6 +38,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly postsService: PostsService,
   ) {}
 
   @Post()
@@ -64,8 +66,17 @@ export class UsersController {
   }
 
   @Get('search')
-  searchBar(@Query() query: { search?: string }) {
-    return this.usersService.searchBar(query);
+  async searchBar(@Query() query: { search?: string }) {
+    const [users, posts] = await Promise.all([
+      this.usersService.searchBar(query),
+      this.postsService.searchBar(query),
+    ]);
+    return { users, posts };
+  }
+
+  @Get('friends/:id')
+  async findFriends(@Param('id') id: string) {
+    return this.usersService.findFriends(+id);
   }
 
   @Delete('delete/:id')

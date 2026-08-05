@@ -23,15 +23,58 @@ export class PostsService {
     try {
       return await this.prisma.post.findMany({
         where: { userId },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              profile: true,
+            },
+          },
+        },
       });
     } catch (error) {
       throw new Error('Failed to retrieve user posts');
     }
   }
 
+  async searchBar(query:{ search?:string}){
+    const { search } = query;
+    const select = {
+      id: true,
+      content: true,
+      userId: true,
+      author:true
+    };
+    if (!search) {
+      return await this.prisma.post.findMany({ select });
+    }
+  
+    return await this.prisma.post.findMany({
+      where: {
+        OR: [
+          { content: { contains: search, mode: 'insensitive' } },
+          
+        ],
+      },
+      select,
+    });
+  }
+
   async findAll() {
     try{
-      return await this.prisma.post.findMany();
+      return await this.prisma.post.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              profile: true,
+            },
+          },
+        },
+      });
     }
     catch(error){
       throw new Error('Failed to retrieve posts');

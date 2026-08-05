@@ -45,17 +45,7 @@ export default function Navbar() {
                 </Link>
               </li>
 
-              <li className="hover:underline">
-                <button
-                  onClick={() => {
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("user");
-                    window.location.reload();
-                  }}
-                >
-                  Logout
-                </button>
-              </li>
+             
               <form onSubmit={handleSearch}>
 
         <input
@@ -69,6 +59,18 @@ export default function Navbar() {
             search
           </button>
         </form>
+
+         <li className="hover:underline bg-red-500 text-black rounded px-3 py-1">
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    window.location.reload();
+                  }}
+                >
+                  Logout
+                </button>
+              </li>
             </>
           )}
         </ul>

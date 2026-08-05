@@ -4,9 +4,11 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { PostsModule } from 'src/posts/posts.module';
 @Module({
   imports: [CloudinaryModule,
     PrismaModule,
+    PostsModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET ?? 'dev-secret',

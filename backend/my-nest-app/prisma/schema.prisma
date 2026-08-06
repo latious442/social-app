@@ -27,3 +27,11 @@ model Post{
   createdAt DateTime @default(now())
   author    User     @relation(fields: [userId], references: [id])
 }
+
+model Message{
+  id          Int      @id @default(autoincrement())
+  msg          String
+  senderId     Int
+  receiverId   Int
+  createdAt    DateTime @default(now())
+}

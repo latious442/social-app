@@ -8,6 +8,7 @@ import Profile from './pages/Profile.jsx'
 import Register from './pages/Register.jsx'
 import Login from './pages/Login.jsx'
 import Admin from './pages/Admin.jsx'
+import Msg from './pages/Msg.jsx'
 import SearchResults from './pages/SearchResults.jsx'
 import Chat from './pages/Chat.jsx'
 createRoot(document.getElementById('root')).render(
@@ -21,6 +22,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/msg" element={<Msg />} />
         <Route path="/search-results" element={<SearchResults />} />
       </Routes>
     </BrowserRouter>

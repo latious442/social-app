@@ -6,10 +6,11 @@ import { PrismaModule } from './prisma/prisma.module';
 import { PostsModule } from './posts/posts.module';
 import { AuthModule } from './auth/auth.module';
 import { MessageModule } from './message/message.module';
+import { ChatGateway } from './chat/chat.gateway';
 
 @Module({
   imports: [UsersModule, PrismaModule, PostsModule, AuthModule, MessageModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ChatGateway],
 })
 export class AppModule {}

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -9,9 +10,16 @@ export default function Msg() {
   const { state } = useLocation();
   const { friendId, userId } = state || {};
 
+  //  Socket.IO connection
   const socket = useRef(null);
+  const messagesEndRef = useRef(null);
 
-  // Connect to Socket.IO
+  // Auto-scroll to the latest message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView();
+  }, [messages]);
+
+ 
   useEffect(() => {
     if (!userId) return;
 
@@ -27,10 +35,11 @@ export default function Msg() {
 
     return () => {
       socket.current?.disconnect();
+      socket.current = null;
     };
   }, [userId]);
 
-  // Fetch previous messages
+
   useEffect(() => {
     async function fetchMessages() {
       if (!userId || !friendId) return;
@@ -59,7 +68,9 @@ export default function Msg() {
     fetchMessages();
   }, [userId, friendId]);
 
-  // Send text message
+  // =========================
+  // SEND TEXT MESSAGE
+  // =========================
   async function sendMessage(event) {
     event.preventDefault();
 
@@ -70,7 +81,6 @@ export default function Msg() {
     const message = messageInput.value.trim();
 
     if (!message) {
-      alert("Please type a message before sending.");
       return;
     }
 
@@ -92,10 +102,13 @@ export default function Msg() {
       const data = await response.json();
 
       if (response.ok) {
-        // Add message locally
-        setMessages((prevMessages) => [...prevMessages, data]);
+        // Add message immediately to UI
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          data,
+        ]);
 
-        // Notify the other user
+        // Notify receiver
         socket.current?.emit("sendMessage", {
           senderId: userId,
           receiverId: friendId,
@@ -111,11 +124,16 @@ export default function Msg() {
     }
   }
 
-  // Send photo
+  // =========================
+  // SEND PHOTO
+  // =========================
   async function sendPhoto(event) {
     event.preventDefault();
 
-    const fileInput = event.target.querySelector('input[type="file"]');
+    const fileInput = event.target.querySelector(
+      'input[type="file"]'
+    );
+
     const file = fileInput.files[0];
 
     if (!file) {
@@ -123,47 +141,87 @@ export default function Msg() {
       return;
     }
 
-    // Photo upload logic will go here
-    console.log("Selected photo:", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-    setShowPhotoForm(false);
+    try {
+      const response = await fetch(
+        `http://localhost:3003/messages/${userId}/${friendId}`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessages((prevMessages) => [...prevMessages, data]);
+
+        socket.current?.emit("sendMessage", data);
+
+        setShowPhotoForm(false);
+      } else {
+        alert(data.message || "Failed to send photo.");
+      }
+    } catch (error) {
+      console.error("Error sending photo:", error);
+    }
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
+    <div className="h-screen flex flex-col bg-cream overflow-hidden">
 
-      {/* ================= MESSAGES ================= */}
-      <div className="flex-1 flex flex-col p-4 overflow-y-auto">
+     
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 h-50">
 
-        {messages.length === 0 ? (
-          <div className="text-center text-gray-500 mt-10">
-            No messages yet.
-          </div>
-        ) : (
-          messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`p-3 my-1 rounded-xl w-fit max-w-[70%] ${
-                msg.senderId === userId
-                  ? "bg-blue-200 self-end"
-                  : "bg-gray-200 self-start"
-              }`}
-            >
-              <div>{msg.msg}</div>
+        <div className="flex flex-col gap-2">
 
-              <div className="text-xs text-gray-500 mt-1">
-                {msg.createdAt
-                  ? new Date(msg.createdAt).toLocaleString()
-                  : ""}
-              </div>
+          {messages.length === 0 ? (
+            <div className="text-center text-muted mt-10">
+              No messages yet.
             </div>
-          ))
-        )}
+          ) : (
+            messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`p-3 rounded-xl w-fit max-w-[70%] ${
+                  msg.senderId === userId
+                    ? "bg-accent text-paper self-end"
+                    : "bg-paper border border-line self-start"
+                }`}
+              >
+                {msg.pht && (
+                  <img
+                    src={msg.pht}
+                    alt="photo"
+                    className="rounded-lg max-w-full max-h-60 object-cover"
+                  />
+                )}
 
+                {msg.msg && <div>{msg.msg}</div>}
+
+                <div className={`text-xs mt-1 ${msg.senderId === userId ? "text-paper/70" : "text-muted"}`}>
+                  {msg.createdAt
+                    ? new Date(
+                        msg.createdAt
+                      ).toLocaleString()
+                    : ""}
+                </div>
+              </div>
+            ))
+          )}
+
+        </div>
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* ================= MESSAGE INPUT ================= */}
-      <div className="p-4 bg-white border-t">
+      {/* ==================================
+          MESSAGE INPUT
+          DOES NOT SCROLL
+      =================================== */}
+      <div className="flex-shrink-0 bg-paper border-t border-line p-4">
 
         <div className="flex items-center gap-2">
 
@@ -175,51 +233,46 @@ export default function Msg() {
             <input
               type="text"
               placeholder="Type your message..."
-              className="border border-gray-300 p-2 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="border border-line p-2 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-accent bg-white text-ink"
             />
 
             <button
               type="submit"
-              className="bg-blue-500 text-white py-2 px-5 rounded-lg hover:bg-blue-600"
+              className="bg-ink text-cream py-2 px-5 rounded-lg hover:opacity-90"
             >
               Send
             </button>
           </form>
 
-          {/* + button OUTSIDE the form */}
+          {/* Photo button */}
           <button
             type="button"
             onClick={() => setShowPhotoForm(true)}
-            className="bg-blue-500 text-white text-xl w-11 h-11 rounded-lg hover:bg-blue-600"
+            className="bg-accent text-paper text-xl w-11 h-11 rounded-lg hover:bg-accent-dark"
           >
             +
           </button>
 
         </div>
-
       </div>
 
-      {/* ================= PHOTO MODAL ================= */}
+    
       {showPhotoForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
 
-          {/* Modal box */}
-          <div
-            id="pht"
-            className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4"
-          >
+          <div className="bg-paper rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4">
 
             {/* Modal header */}
             <div className="flex justify-between items-center mb-5">
 
-              <h2 className="text-xl font-semibold text-gray-800">
+              <h2 className="text-xl font-semibold text-ink">
                 Send a Photo
               </h2>
 
               <button
                 type="button"
                 onClick={() => setShowPhotoForm(false)}
-                className="text-gray-400 hover:text-red-500 text-3xl leading-none"
+                className="text-muted hover:text-[#b5655d] text-3xl leading-none"
               >
                 ×
               </button>
@@ -232,23 +285,22 @@ export default function Msg() {
               <input
                 type="file"
                 accept="image/*"
-                className="w-full border border-gray-300 rounded-lg p-3 mb-5"
+                className="w-full border border-line rounded-lg p-3 mb-5 bg-white"
               />
 
-              {/* Buttons */}
               <div className="flex justify-end gap-2">
 
                 <button
                   type="button"
                   onClick={() => setShowPhotoForm(false)}
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+                  className="px-4 py-2 rounded-lg bg-muted text-cream hover:opacity-90"
                 >
                   Cancel
                 </button>
 
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600"
+                  className="px-5 py-2 rounded-lg bg-accent text-paper hover:bg-accent-dark"
                 >
                   Send
                 </button>
@@ -258,10 +310,10 @@ export default function Msg() {
             </form>
 
           </div>
-
         </div>
       )}
 
     </div>
   );
+
 }

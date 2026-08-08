@@ -23,6 +23,7 @@ model User {
 model Post{
   id        Int      @id @default(autoincrement())
   content   String
+  image     String @default("")
   userId    Int
   createdAt DateTime @default(now())
   author    User     @relation(fields: [userId], references: [id])
@@ -31,6 +32,7 @@ model Post{
 model Message{
   id          Int      @id @default(autoincrement())
   msg          String
+  pht         String @default("")
   senderId     Int
   receiverId   Int
   createdAt    DateTime @default(now())

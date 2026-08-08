@@ -13,6 +13,7 @@ export class MessageService {
           msg: createMessageDto.msg,
           senderId: createMessageDto.senderId,
           receiverId: createMessageDto.receiverId,
+          pht: createMessageDto.pht,
         }
       });
     } catch (error) {

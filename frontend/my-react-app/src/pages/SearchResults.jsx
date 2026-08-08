@@ -7,21 +7,21 @@ export default function SearchResults() {
   const search = state?.search || '';
 
   return (
-    <div className="w-3/4 mx-auto py-8">
-      <button onClick={() => navigate(-1)}>back</button>
+    <div className="w-full max-w-3xl mx-auto p-4 py-8">
+      <button onClick={() => navigate(-1)} className="bg-paper border border-line px-4 py-2 rounded text-ink hover:bg-cream">back</button>
 
-      <h1 className="text-2xl font-bold mb-4">Search Results : {search}</h1>
+      <h1 className="text-2xl font-bold text-ink mb-4">Search Results : {search}</h1>
 
       {users.length === 0 ? (
-        <p className="text-gray-500">No users found.</p>
+        <p className="text-muted">No users found.</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {users.map((user) => (
             <li
               key={user.id}
-              className="bg-gray-100 p-3 rounded flex justify-between hover:bg-gray-200 transition duration-200 cursor-pointer"
+              className="bg-paper border border-line p-3 rounded flex justify-between hover:bg-cream transition duration-200 cursor-pointer"
             >
-              <span className="font-medium">{user.name}</span>
+              <span className="font-medium text-ink">{user.name}</span>
               {user.profile && (
                 <img className="w-12 h-12 rounded-full object-cover" src={user.profile} alt="Profile" />
               )}
@@ -30,15 +30,18 @@ export default function SearchResults() {
         </ul>
       )}
 
-      <h2 className="text-xl font-bold mt-8 mb-2">Posts</h2>
+      <h2 className="text-xl font-bold text-ink mt-8 mb-2">Posts</h2>
       {posts.length === 0 ? (
-        <p className="text-gray-500">No posts found.</p>
+        <p className="text-muted">No posts found.</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {posts.map((post) => (
-            <li key={post.id} className="bg-gray-100 p-3 rounded hover:bg-gray-200 transition duration-200">
-              <p>{post.content}</p>
-              <p className="text-sm text-gray-500 mt-1">by {post.author?.name}</p>
+            <li key={post.id} className="bg-paper border border-line p-3 rounded hover:bg-cream transition duration-200">
+              {post.image && (
+                <img src={post.image} alt="post" className="mb-2 rounded max-h-48 w-full object-cover" />
+              )}
+              <p className="text-ink">{post.content}</p>
+              <p className="text-sm text-muted mt-1">by {post.author?.name}</p>
             </li>
           ))}
         </ul>

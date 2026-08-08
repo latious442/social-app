@@ -38,17 +38,17 @@ export default function Login() {
   }
 
   return (
-    <div>
+    <div className="min-h-[60vh] flex items-center justify-center px-4">
       <form
         onSubmit={loginUser}
-        className="flex flex-col gap-4 bg-gray-100 p-4 rounded w-3/4 mx-auto"
+        className="flex flex-col gap-4 bg-paper border border-line p-6 rounded w-full max-w-sm"
       >
-        <h1 className="text-2xl font-bold mb-4">Login</h1>
+        <h1 className="text-2xl font-bold text-ink mb-2">Login</h1>
 
         <input
           type="email"
           name="email"
-          className="border border-black p-2 rounded"
+          className="border border-line p-2 rounded bg-white text-ink"
           placeholder="Email"
           required
         />
@@ -56,14 +56,14 @@ export default function Login() {
         <input
           type="password"
           name="password"
-          className="border border-black p-2 rounded"
+          className="border border-line p-2 rounded bg-white text-ink"
           placeholder="Password"
           required
         />
 
         <button
           type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+          className="bg-ink text-cream py-2 px-4 rounded hover:opacity-90"
         >
           Login
         </button>

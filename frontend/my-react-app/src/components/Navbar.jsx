@@ -20,9 +20,9 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-blue-500 p-4">
-      <div className="flex justify-between items-center">
-        <ul className="flex gap-6 text-white">
+    <nav className="bg-paper border-b border-line p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 max-w-6xl mx-auto">
+        <ul className="flex flex-wrap items-center gap-4 text-ink">
           <li className="hover:underline">
             <Link to="/">Home</Link>
           </li>
@@ -45,22 +45,22 @@ export default function Navbar() {
                 </Link>
               </li>
 
-             
-              <form onSubmit={handleSearch}>
+
+              <form onSubmit={handleSearch} className="flex">
 
         <input
-          className="w-64 rounded px-3 py-1 text-sm border border-black bg-white text-black"
+          className="w-full sm:w-64 rounded px-3 py-1 text-sm border border-line bg-white text-ink"
           type="text"
           placeholder="Search..." name="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           />
-          <button type="submit" className="bg-white text-blue-500 hover:bg-blue-100 py-1 px-4 rounded">
+          <button type="submit" className="bg-accent text-paper hover:bg-accent-dark py-1 px-4 rounded ml-1">
             search
           </button>
         </form>
 
-         <li className="hover:underline bg-red-500 text-black rounded px-3 py-1">
+         <li className="hover:underline bg-sage text-cream rounded px-3 py-1">
                 <button
                   onClick={() => {
                     localStorage.removeItem("token");

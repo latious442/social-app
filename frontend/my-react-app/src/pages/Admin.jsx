@@ -1,7 +1,9 @@
 import React from 'react'
 import {useState, useEffect} from 'react'
+import { Navigate } from 'react-router-dom'
 export default function Admin() {
-    const [users, setUsers] = useState([]);
+  const isAdmin = localStorage.getItem('admin') === 'true';
+  const [users, setUsers] = useState([]);
   async function handleDeleteUser(id) {
     try {
       const response = await fetch(`http://localhost:3003/users/delete/${id}`, {
@@ -39,12 +41,14 @@ export default function Admin() {
     }, []);
 
   return (
-    <div>
-      <h1>Admin</h1>
-      <ul>
+    <div className="w-full max-w-2xl mx-auto p-4">
+      {!isAdmin && <Navigate to="/admin-login" replace />}
+      <h1 className="text-2xl font-bold text-ink mb-4">Admin</h1>
+      <ul className="flex flex-col gap-2">
         {users.map(user => (
-          <li key={user.id}>{user.name} - {user.email}
-          <button onClick={() => handleDeleteUser(user.id)}>Delete</button>
+          <li key={user.id} className="bg-paper border border-line p-3 rounded flex justify-between items-center text-ink">
+            {user.name} - {user.email}
+          <button onClick={() => handleDeleteUser(user.id)} className="bg-[#b5655d] text-cream py-1 px-3 rounded hover:opacity-90">Delete</button>
           </li>
         ))}
       </ul>

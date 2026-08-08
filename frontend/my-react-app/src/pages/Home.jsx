@@ -21,12 +21,12 @@ const Home = () => {
     fetchPosts();
   }, []);
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-100 py-8 px-4">
+    <div className="flex flex-col items-center min-h-screen bg-cream py-8 px-4">
 
 
       <div className="w-full max-w-xl flex flex-col gap-4">
         {posts.length === 0 ? (
-          <p className="text-gray-500 text-center">No posts yet.</p>
+          <p className="text-muted text-center">No posts yet.</p>
         ) : (
           posts.map((post) => <Item key={post.id} post={post} />)
         )}

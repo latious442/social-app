@@ -46,6 +46,16 @@ export class UsersController {
     return this.usersService.register(createUserDto);
   }
 
+  @Post('send-otp')
+  sendOtp(@Body('email') email: string) {
+    return this.usersService.sendOtp(email);
+  }
+
+  @Post('verify-otp')
+  verifyOtp(@Body('email') email: string, @Body('code') code: string) {
+    return this.usersService.verifyOtp(email, code);
+  }
+
   @Post('login')
   async login(
     @Body('email') email: string,

@@ -11,6 +11,7 @@ export class PostsService {
        data: {
          content: createPostDto.content,
          userId: createPostDto.userId,
+         image: createPostDto.image ?? '',
        }
      });
     
@@ -43,6 +44,7 @@ export class PostsService {
     const select = {
       id: true,
       content: true,
+      image: true,
       userId: true,
       author:true
     };

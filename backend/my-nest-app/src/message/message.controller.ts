@@ -1,18 +1,48 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
+import { FileInterceptor } from '@nestjs/platform-express/multer/interceptors/file.interceptor';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Controller('messages')
 export class MessageController {
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Post('/:senderId/:receiverId')
-  create(
+  @UseInterceptors(FileInterceptor('file'))
+  async create(
     @Param('senderId') senderId: string,
     @Param('receiverId') receiverId: string,
-    @Body() createMessageDto: CreateMessageDto) {
-    return this.messageService.create({ ...createMessageDto, senderId: +senderId, receiverId: +receiverId });
+    @Body('msg') msg: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    let pht = '';
+
+    if (file) {
+      const uploaded = await this.cloudinaryService.uploadFile(file);
+      pht = uploaded.secure_url ?? uploaded.url;
+    }
+
+    return this.messageService.create({
+      msg: msg ?? '',
+      senderId: +senderId,
+      receiverId: +receiverId,
+      pht,
+    });
   }
 
   @Get()

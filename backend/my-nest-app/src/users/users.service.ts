@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -7,13 +8,53 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
+import { EmailService } from '../email/email.service';
 import bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
+  private otps = new Map<string, { code: string; expiresAt: number }>();
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly emailService: EmailService,
   ) {}
+
+  async sendOtp(email: string) {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    this.otps.set(email, {
+      code,
+      expiresAt: Date.now() + 5 * 60 * 1000,
+    });
+
+    await this.emailService.sendOtpEmail(email, code);
+
+    return { message: 'OTP sent to your email' };
+  }
+
+  verifyOtp(email: string, code: string) {
+    const stored = this.otps.get(email);
+
+    if (!stored) {
+      throw new UnauthorizedException('No OTP found. Please request a new one.');
+    }
+
+    if (Date.now() > stored.expiresAt) {
+      this.otps.delete(email);
+      throw new UnauthorizedException('OTP has expired. Please request a new one.');
+    }
+
+    if (stored.code !== code) {
+      throw new UnauthorizedException('Invalid OTP code');
+    }
+
+    this.otps.delete(email);
+    return { message: 'OTP verified successfully' };
+  }
 
   async register(createUserDto: CreateUserDto) {
     try {

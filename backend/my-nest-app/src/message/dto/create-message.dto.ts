@@ -1,8 +1,7 @@
-import { IsString, IsNotEmpty, IsInt } from 'class-validator';
+import { IsString, IsInt } from 'class-validator';
 export class CreateMessageDto {
 
     @IsString()
-    @IsNotEmpty()
     msg!: string;
 
     @IsInt()
@@ -11,4 +10,6 @@ export class CreateMessageDto {
     @IsInt()
     receiverId!: number;
 
+    @IsString()
+    pht?: string;
 }
